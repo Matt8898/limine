@@ -103,10 +103,11 @@ stage2:
     mov gs, ax
     mov ss, ax
 
-    and edx, 0xff
-    push edx
+    mov esi, modules_start
+    mov ecx, modules_end - modules_start
+    mov ebx, dword [modules_count_s]
 
-    call 0x8000
+    jmp 0x8000
 
 bits 16
 %include 'a20_enabler.inc'
@@ -115,5 +116,25 @@ bits 16
 times 1024-($-$$) db 0
 
 incbin '../stage2.bin'
+
+%assign modules_count 0
+
+%macro module 1
+%1_start:
+dd %1_end - %1_start
+dd 0, 0, 0
+%defstr %1_path ../../modules/%1/%1.mod
+incbin %1_path
+align 16
+%1_end:
+%assign modules_count modules_count+1
+%endmacro
+
+align 16
+modules_start:
+%include '../../builtin_modules.list'
+modules_end:
+
+modules_count_s: dd modules_count
 
 times 32768-($-$$) db 0
