@@ -23,6 +23,8 @@
     value; \
 })
 
+extern size_t bump_allocator_base;
+
 uint8_t bcd_to_int(uint8_t val);
 
 int cpuid(uint32_t leaf, uint32_t subleaf,

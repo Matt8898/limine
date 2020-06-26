@@ -1,8 +1,11 @@
-.PHONY: all clean echfs-test ext2-test
+.PHONY: all modules clean echfs-test ext2-test
 
-all:
+all: modules
 	$(MAKE) -C src all
 	cp src/qloader2.bin ./
+
+modules:
+	cd modules && ./make_modules.sh
 
 clean:
 	$(MAKE) -C src clean

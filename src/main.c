@@ -1,14 +1,22 @@
 asm (
     ".section .entry\n\t"
-    "xor dh, dh\n\t"
+
+    // Move built in modules where they do not bother
+    "mov edi, OFFSET bss_end\n\t"
+    "add edi, ecx\n\t"
+    "push edi\n\t"
+    "push OFFSET bss_end\n\t"
+    "push ebx\n\t"
+    "mov edi, OFFSET bss_end\n\t"
+    "rep movsb\n\t"
+    "and edx, 0xff\n\t"
     "push edx\n\t"
 
     // Zero out .bss
     "xor al, al\n\t"
-    "lea edi, bss_begin\n\t"
-    "lea ecx, bss_end\n\t"
-    "lea edx, bss_begin\n\t"
-    "sub ecx, edx\n\t"
+    "mov edi, OFFSET bss_begin\n\t"
+    "mov ecx, OFFSET bss_end\n\t"
+    "sub ecx, OFFSET bss_begin\n\t"
     "rep stosb\n\t"
 
     "call main\n\t"
@@ -23,6 +31,7 @@ asm (
 #include <lib/e820.h>
 #include <lib/memmap.h>
 #include <lib/print.h>
+#include <lib/module.h>
 #include <fs/file.h>
 #include <lib/elf.h>
 #include <protos/stivale.h>
@@ -31,11 +40,15 @@ asm (
 #include <protos/chainload.h>
 #include <menu.h>
 
-void main(int boot_drive) {
-    // Initial prompt.
+void main(int boot_drive, size_t module_count, void *modules, size_t balloc_base) {
+    bump_allocator_base = balloc_base;
+
     init_vga_textmode();
 
     print("qloader2\n\n");
+
+    print("Initialising %u built-in modules at %x...\n", module_count, modules);
+    init_modules(module_count, modules);
 
     print("Boot drive: %x\n", boot_drive);
 
