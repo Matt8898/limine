@@ -52,6 +52,9 @@ void main(int boot_drive, size_t module_count, void *modules, size_t balloc_base
     print("Initialising %u built-in modules at %x...\n", module_count, modules);
     init_modules(module_count, modules);
 
+    print("Initialising %u built-in modules at %x...\n", module_count, modules);
+    init_modules(module_count, modules);
+
     print("Boot drive: %x\n", boot_drive);
 
     // Look for config file.
